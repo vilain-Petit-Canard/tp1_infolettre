@@ -95,19 +95,51 @@ register_deactivation_hook(__FILE__, 'tp1_deactivation');
 // fonction pour afficher le menu admin
 function tp1_ajouter_menu(){
     add_menu_page(
-        'Tp1 infolettre',
-        'Tp1 infolettre',
+        'TP1 Infolettre',
+        'TP1 Infolettre',
         'manage_options',
         'tp1_infolettre',
-        'tp1_infolettre_ajouter_formulaire'
+        'tp1_infolettre_ajouter_formulaire',
+        'dashicons-email-alt2'
     );
 }
 add_action('admin_menu', 'tp1_ajouter_menu');
 
 // fonction pour rajouter le formulaire du panneau 
 function tp1_infolettre_ajouter_formulaire(){
+    include(plugin_dir_path(__FILE__).'templates/formulaire.php');
+
+        // S'il y a un query string nom, ajoute sa valeur à la db
+if ( isset( $_POST['couleur_fond'], $_POST['couleur'], $_POST['form_titre'], $_POST['form_nom'], $_POST['form_couriel'], $_POST['btn_suivant'], $_POST['btn_soumettre'] ) ) {
+    tp1_ajouter_data(); // Appelle la fonction pour l’appel à la db
+    };
     
 }
+
+// fonction pour rajouter la donnee de formulaire dans la base de donnees
+function tp1_ajouter_data(){
+    global $wpdb;
+    $couleur_fond = sanitize_text_field($_POST['couleur_fond']);
+    $couleur = sanitize_text_field($_POST['couleur']);
+    $form_titre = sanitize_text_field($_POST['form_titre']);
+    $form_nom = sanitize_text_field($_POST['form_nom']);
+    $form_couriel = sanitize_text_field($_POST['form_couriel']);
+    $btn_suivant = sanitize_text_field($_POST['btn_suivant']);
+    $btn_soumettre = sanitize_text_field($_POST['btn_soumettre']);
+
+    $wpdb -> UPDATE(TP1_ADMIN_SETTINGS, array(
+        'couleur_fond' => $couleur_fond,
+        'couleur' => $couleur,
+        'form_titre' => $form_titre,
+        'form_nom' => $form_nom,
+        'form_couriel' => $form_couriel,
+        'btn_suivant' => $btn_suivant,
+        'btn_soumettre' => $btn_soumettre
+    ),
+    ['id' => 1]
+);
+    };
+
 
 
 
