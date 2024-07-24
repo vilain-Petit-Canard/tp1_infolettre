@@ -107,11 +107,13 @@ add_action('admin_menu', 'tp1_ajouter_menu');
 
 // fonction pour rajouter le formulaire du panneau 
 function tp1_infolettre_ajouter_formulaire(){
-    include(plugin_dir_path(__FILE__).'templates/formulaire.php');
+    // include(plugin_dir_path(__FILE__).'templates/modal_infolettre.php');
+    include(plugin_dir_path(__FILE__).'templates/admin_formulaire.php');
 
         // S'il y a un query string nom, ajoute sa valeur à la db
 if ( isset( $_POST['couleur_fond'], $_POST['couleur'], $_POST['form_titre'], $_POST['form_nom'], $_POST['form_couriel'], $_POST['btn_suivant'], $_POST['btn_soumettre'] ) ) {
-    tp1_ajouter_data(); // Appelle la fonction pour l’appel à la db
+    tp1_ajouter_data(); 
+    // Appelle la fonction pour l’appel à la db
     };
     
 }
@@ -137,24 +139,21 @@ function tp1_ajouter_data(){
         'btn_soumettre' => $btn_soumettre
     ),
     ['id' => 1]
-);
-    };
+    ); 
+
+};
 
 
+// rajouter le modal infolettre
+function tp1_ajouter_modal(){
+    // global $wpdb;
+    include(plugin_dir_path(__FILE__).'templates/modal_infolettre.php');
+    // global $wpdb;
+    // $table_name_test = $wpdb->prefix . 'tp1_admin_settings';
+    // $tp1_settings = $wpdb->get_row("SELECT * FROM $table_name_test WHERE id = 1");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
+add_action('wp_footer', 'tp1_ajouter_modal');
 
 
 // enregistrer mes scripts et styles
