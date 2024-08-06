@@ -33,31 +33,31 @@
     <form class='tp1_infolettre_form' action="" method='POST' id="tp1_infolettre_form">
         <div class="tp1_form_row">
             <label for="couleur_fond">Couleur de fond</label>
-            <input type="color" name="couleur_fond" id="couleur_fond" value="<?php echo esc_attr($admin_settings->couleur_fond); ?>">
+            <input type="color" name="couleur_fond" id="couleur_fond" >
         </div>
         <div class="tp1_form_row">
             <label for="couleur">Couleur</label>
-            <input type="color" name="couleur" id="couleur" value="<?php echo esc_attr($admin_settings->couleur); ?>">
+            <input type="color" name="couleur" id="couleur">
         </div>
         <div class="tp1_form_row">
             <label for="form_titre">Titre</label>
-            <input type="text" name="form_titre" id="form_titre" value="<?php echo esc_attr($admin_settings->form_titre); ?>">
+            <input type="text" name="form_titre" id="form_titre">
         </div>
         <div class="tp1_form_row">
             <label for="form_nom">intitulé 'Nom'</label>
-            <input type="text" name="form_nom" id="form_nom" value="<?php echo esc_attr($admin_settings->form_nom); ?>">
+            <input type="text" name="form_nom" id="form_nom" >
         </div>
         <div class="tp1_form_row">
             <label for="form_couriel">intitulé 'Couriel'</label>
-            <input type="text" name="form_couriel" id="form_couriel" value="<?php echo esc_attr($admin_settings->form_couriel); ?>">
+            <input type="text" name="form_couriel" id="form_couriel" >
         </div>
         <div class="tp1_form_row">
             <label for="btn_suivant">Bouton 'Suivant'</label>
-            <input type="text" name="btn_suivant" id="btn_suivant" value="<?php echo esc_attr($admin_settings->btn_suivant); ?>">
+            <input type="text" name="btn_suivant" id="btn_suivant" >
         </div>
         <div class="tp1_form_row">
             <label for="btn_soumettre">Bouton 'Soumettre'</label>
-            <input type="text" name="btn_soumettre" id="btn_soumettre" value="<?php echo esc_attr($admin_settings->btn_soumettre); ?>">
+            <input type="text" name="btn_soumettre" id="btn_soumettre" >
         </div>
         <div class="tp1_btn_div">
         <button class="tp1_btn_submit" type="submit">Enregistrer</button>

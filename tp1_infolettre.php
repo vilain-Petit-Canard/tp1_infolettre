@@ -155,12 +155,82 @@ function tp1_ajouter_modal(){
 }
 add_action('wp_footer', 'tp1_ajouter_modal');
 
+// faire un lien rest_api pour que peux utiliser pour la requete que je dois faire dans js
+add_action('rest_api_init', function () {
+    register_rest_route('tp1_infolettre', '/settings', array(
+        'methods' => 'GET',
+        'callback' => 'get_admin_settings',
+    ));
+});
+// fonction qui fait la requete pour les donnes settings dans la bd
+function get_admin_settings (WP_REST_Request $request) {
+    global $wpdb;
+    $admin_settings = $wpdb -> prefix . 'tp1_admin_settings';
 
+    $admin_settings_js = $wpdb->get_results("SELECT * FROM $admin_settings");
+
+    return new WP_REST_Response($admin_settings_js, 200);
+}
 // enregistrer mes scripts et styles
 function tp1_enqueue_styles_and_scripts(){
     wp_enqueue_style('tp1_infolettre_main_style', plugin_dir_url(__FILE__).'styles/main_style.css');
     wp_enqueue_script('tp1_infolettre_main_script', plugin_dir_url(__FILE__).'scripts/main_script.js');
 
+     // Localize the main_script script with new data
+     wp_localize_script('tp1_infolettre_main_script', 'MyPluginSettings', array(
+        'rest_url' => esc_url_raw(rest_url('tp1_infolettre/settings')),
+        'nonce'    => wp_create_nonce('wp_rest')
+    ));
+
 }
 add_action('wp_enqueue_scripts', 'tp1_enqueue_styles_and_scripts');
 
+// adding a script admin side
+function tp1_enqueue_styles_and_scripts_admin_side(){
+    wp_enqueue_script('tp1_admin_main_script', plugin_dir_url(__FILE__).'scripts/admin_form_script.js');
+
+    // Localize the admin_script script with new data
+    wp_localize_script('tp1_admin_main_script', 'MyPluginSettings', array(
+        'rest_url' => esc_url_raw(rest_url('tp1_infolettre/settings')),
+        'nonce'    => wp_create_nonce('wp_rest')
+    ));
+}
+add_action('admin_enqueue_scripts', 'tp1_enqueue_styles_and_scripts_admin_side');
+
+
+
+/**
+ * Gestion de la soumission du formulaire côté client
+ */
+function tp1_nouvelle_inscription() {
+    global $wpdb;
+    $user_contacts = $wpdb -> prefix . 'tp1_user_contacts';
+
+    if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
+        
+        if ( !empty( $_POST['modal_name']) && !empty($_POST['modal_email']) ) {
+
+            $modal_name = sanitize_text_field( $_POST['modal_name'] );
+            $modal_email = sanitize_email( $_POST['modal_email'] );
+
+            $wpdb->insert( $user_contacts,
+                array(
+                    'name' => $modal_name,
+                    'email' => $modal_email
+                ), array(
+                    '%s'        // $format (optionnel) => string
+                )
+            );
+
+            /**
+             * Rafraîchi la page pour faire la communication client serveur
+             * Détruit la variable spécifiée
+             * exit pour stopper l'exécution de la suite du code
+             */
+            header( "Location: http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" );
+            unset( $_POST );
+            exit;
+        }
+    }
+}
+add_action( 'init', 'tp1_nouvelle_inscription' );
