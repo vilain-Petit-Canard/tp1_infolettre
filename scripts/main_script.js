@@ -1,18 +1,30 @@
 // pour le button suivant et faire apparaitre le formulaire sur scroll down
 document.addEventListener('DOMContentLoaded', function test () {
-    const form = document.querySelector('.tp1_modal_container');
+    const form_container = document.querySelector('.tp1_modal_container');
+    const form = document.querySelector('#tp1_modal_form');
     const btn_close = document.querySelector('.tp1_modal_close_btn');
     const btn_suivant = document.querySelector('.btn_suivant');
-    const second_section = document.querySelector('.tp1_modal_second_section');
-    const first_section = document.querySelector('.tp1_modal_first_section');
+    const second_section = document.querySelector('.tp1_modal_second_section_errors');
+    const first_section = document.querySelector('.tp1_modal_first_section_errors');
+    const input_modal_name = document.querySelector('#modal_name');
+    const input_modal_email = document.querySelector('#modal_email');
+    const span_error_name = document.querySelector('.error_name');
+    const span_error_email = document.querySelector('.error_email');
+    const thank_you_message = document.querySelector('.form_titre');
 
     // boutonsuivant
     btn_suivant.addEventListener('click', ()=>{
-        first_section.style.display = 'none';
-        second_section.style.display = 'block';
+        if(input_modal_name.value == ''){
+            span_error_name.textContent = "Veuillez entrez votre nom !";
+            input_modal_name.focus();
+
+        }else{
+            first_section.style.display = 'none';
+            second_section.style.display = 'block';
+        }
     })
     // apparition formulaire
-    document.addEventListener('scrollend', ()=>{
+    document.addEventListener('scroll', ()=>{
 
         // niveau du scroll
         const scrollPosition = window.scrollY + window.innerHeight + 110;
@@ -20,22 +32,47 @@ document.addEventListener('DOMContentLoaded', function test () {
         // taille totale du document
         const documentHeight = document.documentElement.scrollHeight;
         // apparition et disparition du formulaire
-        (scrollPosition >= documentHeight)? form.style.opacity = '100%' : form.style.opacity = '0';
+        (scrollPosition >= documentHeight)? form_container.style.opacity = '100%' : form_container.style.opacity = '0';
         // fermeture du fomulaire avec le button x
-        btn_close.addEventListener('click', ()=>{
-            form.style.display = 'none';
-        })
-    
+        
     })
+    
+    btn_close.addEventListener('click', ()=>{
+        form_container.style.display = 'none';
+    })
+    // prevnt dafault
+    form.addEventListener('submit', (e)=> {
+        e.preventDefault();
+        // validation d'email pour juste le @ et le point
+        const valid_email_exp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+        if(input_modal_email.value == ''){
+
+            span_error_email.textContent = "Veuillez entrez votre email !";
+            input_modal_email.focus();
+
+        }else if(!(input_modal_email.value.match(valid_email_exp)))  {
+
+            span_error_email.textContent = "Veuillez entrez un email valide !";
+            input_modal_email.focus();
+
+        }else{
+            second_section.style.display = 'none';
+            thank_you_message.textContent = "Merci de vous être abonné à l'infolettre!"
+
+            setTimeout(()=>{
+                // soumettre le formulaire
+                e.target.submit();
+            }, 2000);
+        }
+    });
 
    
 })
-//    test();
 
  // fetch the data
  async function fetchAdminData(){
-    console.log(window.location.href);
+    // console.log(window.location.href);   
     try {
         const response = await fetch(MyPluginSettings.rest_url);
         if (!response.ok) {

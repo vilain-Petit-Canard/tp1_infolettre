@@ -8,6 +8,10 @@
 
 //  securiser l'acces du fichier par le front-end
 defined( 'ABSPATH' ) || exit();
+$tp1_errors = array();
+// $tp1_errors['test'] = "just testing"; 
+global $tp1_errors;
+// print_r($tp1_errors);
 
 // constantes
     global $wpdb;
@@ -24,13 +28,16 @@ defined( 'ABSPATH' ) || exit();
 // fonction pour activer le plugin tp1_infolettre
 function tp1_activation(){
     global $wpdb;
+    // $tp1_errors = array();
+    // global $tp1_errors;
+    // echo "test";
     $admin_settings = $wpdb -> prefix . 'tp1_admin_settings';
     $user_contacts = $wpdb -> prefix . 'tp1_user_contacts';
     $charset_collate = $wpdb -> get_charset_collate();
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php');
 
 // creation de la table 'tp1_admin_settings'
-    echo TP1_ADMIN_SETTINGS;
+    // echo TP1_ADMIN_SETTINGS;
     if ( $wpdb->get_var( "SHOW TABLES LIKE ' $admin_settings'" ) != $admin_settings ) {
         $sql_settings = "CREATE TABLE $admin_settings (
             id int NOT NULL AUTO_INCREMENT,
@@ -85,8 +92,8 @@ function tp1_deactivation(){
     $admin_settings = $wpdb -> prefix . 'tp1_admin_settings';
     $user_contacts = $wpdb -> prefix . 'tp1_user_contacts';
 
-    $wpdb ->query(" DROP TABLE IF EXISTS $admin_settings");
-    $wpdb ->query(" DROP TABLE IF EXISTS $user_contacts");
+    // $wpdb ->query(" DROP TABLE IF EXISTS $admin_settings");
+    // $wpdb ->query(" DROP TABLE IF EXISTS $user_contacts");
 
 }
 register_deactivation_hook(__FILE__, 'tp1_deactivation');
@@ -112,8 +119,8 @@ function tp1_infolettre_ajouter_formulaire(){
 
         // S'il y a un query string nom, ajoute sa valeur à la db
 if ( isset( $_POST['couleur_fond'], $_POST['couleur'], $_POST['form_titre'], $_POST['form_nom'], $_POST['form_couriel'], $_POST['btn_suivant'], $_POST['btn_soumettre'] ) ) {
-    tp1_ajouter_data(); 
     // Appelle la fonction pour l’appel à la db
+    tp1_ajouter_data(); 
     };
     
 }
@@ -146,13 +153,10 @@ function tp1_ajouter_data(){
 
 // rajouter le modal infolettre
 function tp1_ajouter_modal(){
-    // global $wpdb;
-    include(plugin_dir_path(__FILE__).'templates/modal_infolettre.php');
-    // global $wpdb;
-    // $table_name_test = $wpdb->prefix . 'tp1_admin_settings';
-    // $tp1_settings = $wpdb->get_row("SELECT * FROM $table_name_test WHERE id = 1");
 
+    include(plugin_dir_path(__FILE__).'templates/modal_infolettre.php');
 }
+
 add_action('wp_footer', 'tp1_ajouter_modal');
 
 // faire un lien rest_api pour que peux utiliser pour la requete que je dois faire dans js
@@ -205,32 +209,64 @@ add_action('admin_enqueue_scripts', 'tp1_enqueue_styles_and_scripts_admin_side')
 function tp1_nouvelle_inscription() {
     global $wpdb;
     $user_contacts = $wpdb -> prefix . 'tp1_user_contacts';
-
+    $tp1_errors = array();
+    global $tp1_errors;
     if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-        
-        if ( !empty( $_POST['modal_name']) && !empty($_POST['modal_email']) ) {
+        // validation si vide nom
+        if ( empty( $_POST['modal_name']) ) {
 
+            $tp1_errors['name_empty'] = 'Veuillez entrer votre nom';      
+
+        }else{
+            
             $modal_name = sanitize_text_field( $_POST['modal_name'] );
-            $modal_email = sanitize_email( $_POST['modal_email'] );
+        }
 
+        // validation si vide email ou pas correct
+        if ( empty( $_POST['modal_email']) ) {
+
+            $tp1_errors['email_empty'] = 'Veuillez entrer votre email';  
+
+        }elseif(!filter_var($_POST['modal_email'], FILTER_VALIDATE_EMAIL)){
+
+            $tp1_errors['email_invalide'] = 'Veuillez entrer un email valide.';
+
+        }else{
+            $modal_email = sanitize_email( $_POST['modal_email'] );
+        }
+        
+        if(empty($tp1_errors)){
+   
             $wpdb->insert( $user_contacts,
-                array(
-                    'name' => $modal_name,
-                    'email' => $modal_email
-                ), array(
-                    '%s'        // $format (optionnel) => string
+            array(
+                'name' => $modal_name,
+                'email' => $modal_email
+            ), array(
+                '%s'        // $format (optionnel) => string
                 )
             );
 
+        }
+      
             /**
              * Rafraîchi la page pour faire la communication client serveur
              * Détruit la variable spécifiée
              * exit pour stopper l'exécution de la suite du code
              */
-            header( "Location: http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" );
-            unset( $_POST );
-            exit;
-        }
-    }
-}
+            if (isset($_POST['form_name'])) {
+                $form_name = $_POST['form_name'];
+        
+                if ($form_name == 'tp1_infolettre_form') {
+                    // Handle the infolettre form
+                    if (isset($_POST['modal_name'], $_POST['modal_email'] )) {
+                        
+                        header( "Location: http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" );
+                        unset( $_POST );
+                        exit;
+                    }
+        
+                }
+            }   
+    }      
+}  
 add_action( 'init', 'tp1_nouvelle_inscription' );
